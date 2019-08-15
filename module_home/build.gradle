@@ -1,0 +1,59 @@
+if (rootProject.ext.base.isModuleIndependent) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+
+android {
+    resourcePrefix rootProject.ext.resourcePrefix.moduleHome
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+
+    defaultConfig {
+        if (rootProject.ext.base.isModuleIndependent) {
+            applicationId rootProject.ext.android.home
+        }
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        sourceSets {
+            main {
+                if (rootProject.ext.base.isModuleIndependent) {
+                    manifest.srcFile 'src/main/buildApp/AndroidManifest.xml'
+                } else {
+                    manifest.srcFile 'src/main/buildModule/AndroidManifest.xml'
+                }
+            }
+        }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.getName()]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    testImplementation rootProject.ext.dependencies['junit']
+    androidTestImplementation rootProject.ext.dependencies['runner']
+    androidTestImplementation rootProject.ext.dependencies['espresso-core']
+
+    implementation rootProject.ext.dependencies['arouter-api']
+    annotationProcessor rootProject.ext.dependencies['arouter-compiler']
+
+    implementation project(':baselibrary')
+    implementation project(':module_route')
+}
